@@ -12,7 +12,7 @@ namespace PwhPropData.Core.Interfaces
 		Task<IEnumerable<PortfolioHeader>> GetPortfolioHeadersAsync(IEnumerable<int> portfolioIds);
 		Task<IEnumerable<PortfolioHeader>> GetPortfolioHeadersByAttributeAsync(PortfolioAttribute attribute);
 		Task<IEnumerable<Entities.PortfolioHeader>> GetPortfolioHeadersByQueryAsync();
-		Task<IEnumerable<HoldingsStatement>> GetHoldingsStatementsAsync(int portfolioId, DateTime date);
+		Task<IEnumerable<HoldingsStatement>> GetHoldingsStatementsAsync(int portfolioId, DateTime startDate, DateTime endDate);
 		Task DeletePortfoliosAsync(IEnumerable<int> portfolioIds);
 		Task UpdateHoldingStatementsAsync(int portfolioId, IEnumerable<HoldingsStatement> holdingStatements);
 	}

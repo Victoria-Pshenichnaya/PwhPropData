@@ -32,7 +32,7 @@
 					<GridViewColumn Header="Portfolio Id" Width="120" DisplayMemberBinding="{Binding Id}" />
 					<GridViewColumn Header="Name" Width="120" DisplayMemberBinding="{Binding Name}" />
 					<GridViewColumn Header="Code" Width="120" DisplayMemberBinding="{Binding Code}" />
-					<GridViewColumn Header="HoldingsStatementsCount" DisplayMemberBinding="{Binding HoldingsStatementsCount}" Width="50" />
+					<GridViewColumn Header="Number Of Constituents" DisplayMemberBinding="{Binding NumberOfConstituents}" Width="50" />
 				</GridView>
 			</ListView.View>
 			<i:Interaction.Triggers>

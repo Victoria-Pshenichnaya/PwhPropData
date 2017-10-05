@@ -1,14 +1,13 @@
 ﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using PwhPropData.Core.Interfaces;
 using PwhPropData.Core.Storages;
-using System;
 using System.Collections.Generic;
+using System;
 using System.Threading.Tasks;
 
 namespace PwhPropData.Core.Managers
 {
-	public class adcData
+	public class AdcData
 	{
 		public string cols { get; set; }
 		public string status { get; set; }
@@ -25,11 +24,15 @@ namespace PwhPropData.Core.Managers
 			_adcStorage = adcStorage;
 		}
 
-		public IEnumerable<KeyValuePair<string, double>> GetRecommendations(int portfolioId)
+		public async Task<IEnumerable<KeyValuePair<string, double>>> GetRecommendations(int portfolioId)
 		{
-			string json = _adcStorage.GetData(portfolioId);
-			adcData jsonData = JsonConvert.DeserializeObject<adcData>(json);
-			//dynamic data = JObject.Parse(json);
+			string json = await _adcStorage.GetData(portfolioId);
+			return DeserializeJson(json);
+		}
+
+		private IEnumerable<KeyValuePair<string, double>> DeserializeJson(string json)
+		{
+			AdcData jsonData = JsonConvert.DeserializeObject<AdcData>(json);
 
 			for (int i = 1; i < jsonData.rows.Length; i++)
 			{

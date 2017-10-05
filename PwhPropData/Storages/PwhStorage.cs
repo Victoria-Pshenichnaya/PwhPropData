@@ -127,7 +127,7 @@ namespace PwhPropData.Core.Storages
 			}
 		}
 
-		public async Task<IEnumerable<HoldingsStatement>> GetHoldingsStatementsAsync(int portfolioId, DateTime date)
+		public async Task<IEnumerable<HoldingsStatement>> GetHoldingsStatementsAsync(int portfolioId, DateTime startDate, DateTime endDate)
 		{
 			try
 			{
@@ -140,8 +140,8 @@ namespace PwhPropData.Core.Storages
 					PortfolioId = portfolioId,
 					HoldingsStatementGetOptions = new Pwh.HoldingsStatementGetOptions()
 					{
-						StartDate = DateTime.SpecifyKind(date, DateTimeKind.Unspecified),
-						EndDate = DateTime.SpecifyKind(DateTime.Today, DateTimeKind.Unspecified),
+						StartDate = DateTime.SpecifyKind(startDate, DateTimeKind.Unspecified),
+						EndDate = DateTime.SpecifyKind(endDate, DateTimeKind.Unspecified),
 						BestAvailableStatement = false,
 						SplitAdjustToCurrent = false
 					}

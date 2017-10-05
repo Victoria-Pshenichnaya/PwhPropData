@@ -28,7 +28,7 @@ namespace PwhPropData.Core.Managers
 
 		public async void UpdateRecommendationsForApmPortfolios()
 		{
-			IEnumerable<PortfolioHeader> apmPortfolios = _pwhManager.GetHeadersByAttributeAsync(new PortfolioAttribute() { ApplicationCode = Settings.PwhApplicationCode, Name = Settings.PwhApmAttribute }).Result;
+			IEnumerable<PortfolioHeader> apmPortfolios = _pwhManager.GetApmPortfolioHeadersAsync().Result;
 			_logger.LogMessage($"Count of APM portfolios: {apmPortfolios.Count()}, Ids: {string.Join(",", apmPortfolios.Select(p => p.Id))}");
 
 			foreach (PortfolioHeader portfolio in apmPortfolios)
@@ -39,7 +39,7 @@ namespace PwhPropData.Core.Managers
 
 		public async Task UpdateRecommendationsForApmPortfolio(int portfolioId)
 		{
-			IEnumerable<KeyValuePair<string, double>> recommenadations = _adcManager.GetRecommendations(portfolioId);
+			IEnumerable<KeyValuePair<string, double>> recommenadations = await _adcManager.GetRecommendations(portfolioId);
 
 			if ((recommenadations != null) && (recommenadations.Count() > 0))
 			{

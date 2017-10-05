@@ -12,3 +12,10 @@ C:\Users\Victoria_Pshenichnay\Documents\Visual Studio 2017\Projects\PropDataPWH\
 C:\Users\Victoria_Pshenichnay\Documents\Visual Studio 2017\Projects\PropDataPWH\PwhPropData\obj\Debug\PwhPropData.Core.csprojResolveAssemblyReference.cache
 C:\Users\Victoria_Pshenichnay\Documents\Visual Studio 2017\Projects\PropDataPWH\PwhPropData\obj\Debug\PwhPropData.Core.exe
 C:\Users\Victoria_Pshenichnay\Documents\Visual Studio 2017\Projects\PropDataPWH\PwhPropData\obj\Debug\PwhPropData.Core.pdb
+D:\Projects\TREikon\PwhPropData\PwhPropData\obj\Debug\PwhPropData.Core.csprojResolveAssemblyReference.cache
+D:\Projects\TREikon\PwhPropData\PwhPropData\obj\Debug\PwhPropData.Core.exe
+D:\Projects\TREikon\PwhPropData\PwhPropData\obj\Debug\PwhPropData.Core.pdb
+D:\Projects\TREikon\PwhPropData\PwhPropData\bin\Debug\PwhPropData.Core.exe.config
+D:\Projects\TREikon\PwhPropData\PwhPropData\bin\Debug\PwhPropData.Core.exe
+D:\Projects\TREikon\PwhPropData\PwhPropData\bin\Debug\PwhPropData.Core.pdb
+D:\Projects\TREikon\PwhPropData\PwhPropData\bin\Debug\Newtonsoft.Json.dll

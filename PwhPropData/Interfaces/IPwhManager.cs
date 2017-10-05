@@ -11,10 +11,9 @@ namespace PwhPropData.Core.Interfaces
 		Task<int> AddApmPortfolioAsync(FundedPortfolio portfolio);
 		Task DeletePortfolios(IEnumerable<int> portfolioIds);
 		Task AddHoldingsStatementsAsync(int portfolioId, IEnumerable<HoldingsStatement> holdingsStatements);
-		Task<IEnumerable<PortfolioHeader>> GetHeadersByPartfolioIdAsync(int portfolioId);
-		Task<IEnumerable<PortfolioHeader>> GetHeadersByAttributeAsync(PortfolioAttribute att);
+		Task<PortfolioHeader> GetHeaderByPartfolioIdAsync(int portfolioId);
+		Task<IEnumerable<PortfolioHeader>> GetApmPortfolioHeadersAsync();
 		Task<IEnumerable<HoldingsStatement>> GetHoldingsStatementsAsync(int portfolioId, DateTime startDate);
-		Task<IEnumerable<PortfolioHeader>> GetHeadersByAttributeNameAsync(string attributeName);
 		Task UpdateHoldingStatementsAsync(int portfolioId, IEnumerable<HoldingsStatement> holdingStatements);
 	}
 }

@@ -15,7 +15,6 @@ namespace PwhPropData.UI
 {
 	public class MainViewModel : BindableBase
 	{
-		private readonly IPwhPropDataManager _pwhPropDataManager = null;
 		private readonly IPwhManager _pwhManager = null;
 		private readonly IAdcManager _adcManager = null;
 
@@ -37,7 +36,6 @@ namespace PwhPropData.UI
 			ILogger logger = new Logger();
 			_pwhManager = new PwhManager(logger, new PwhStorage(logger, new PwhConverter(new UserIdentityProvider())));
 			_adcManager = new AdcManager(logger, new AdcStorage(logger));
-			_pwhPropDataManager = new PwhPropDataManager(logger, _pwhManager, _adcManager);
 
 			FillApmPortfolios();
 		}
@@ -145,35 +143,19 @@ namespace PwhPropData.UI
 			{
 				StartLoading("Portfolios");
 				_fundedPortfolios.Clear();
-				await _pwhManager.GetHeadersByAttributeNameAsync(Settings.PwhApmAttribute).ContinueWith(task =>
+				IEnumerable<PortfolioHeader> portfolios = await _pwhManager.GetApmPortfolioHeadersAsync();
+				if (portfolios != null)
 				{
-					try
+					AddMessage($"{portfolios.Count()} APM portfolio(s) was(were) received.");
+					foreach (var portfolio in portfolios)
 					{
-						IEnumerable<PortfolioHeader> portfolios = task.Result;
-						if (portfolios != null)
-						{
-							App.Current.Dispatcher.Invoke((Action)delegate
-							{
-								AddMessage($"{portfolios.Count()} APM portfolio(s) was(were) received.");
-								foreach (var portfolio in portfolios)
-								{
-									_fundedPortfolios.Add(
-										new PortfolioViewModel()
-										{
-											Id = portfolio.Id,
-											Name = portfolio.Name,
-											Code = portfolio.Code,
-											HoldingsStatementsCount = portfolio.NumberOfConstituents
-										});
-								}
-							});
-						}
+						AddFundedPortfolio(portfolio);
 					}
-					catch (Exception ex)
-					{
-						HandleException(ex, ex.Message);
-					}
-				});
+				}
+			}
+			catch (Exception ex)
+			{
+				HandleException(ex, ex.Message);
 			}
 			finally
 			{
@@ -183,40 +165,32 @@ namespace PwhPropData.UI
 
 		private async void GetHoldingsStatements()
 		{
+			if (SelectedPortfolio.HoldingsStatements.Count > 0)
+			{
+				return;
+			}
+			int portfolioId = SelectedPortfolio.Id;
+			StartLoading($"Holdings Statements for portfolio {portfolioId}");
 			try
 			{
-				if (SelectedPortfolio.HoldingsStatements.Count > 0)
+				IEnumerable<HoldingsStatement> holdingStatements = await _pwhManager.GetHoldingsStatementsAsync(portfolioId, DateTime.Today.AddYears(-1));
+				if (holdingStatements != null)
 				{
-					return;
-				}
-				int portfolioId = SelectedPortfolio.Id;
-				StartLoading($"Holdings Statements for portfolio {portfolioId}");
-				await _pwhManager.GetHoldingsStatementsAsync(portfolioId, DateTime.Today.AddYears(-1)).ContinueWith(task =>
-				{
-					try
+					AddMessage($"{holdingStatements.Count()} holdings statement(s) was(were) received for portfolio {portfolioId}.");
+
+					foreach (var holdingStatement in holdingStatements)
 					{
-						IEnumerable<HoldingsStatement> holdingStatements = task.Result;
-						if (holdingStatements != null)
+						SelectedPortfolio.HoldingsStatements.Add(new HoldingsStatementViewModel()
 						{
-							AddMessage($"{holdingStatements.Count()} holdings statement(s) was(were) received for portfolio {portfolioId}.");
-							App.Current.Dispatcher.Invoke((Action)delegate
-							{
-								foreach (var holdingStatement in holdingStatements)
-								{
-									SelectedPortfolio.HoldingsStatements.Add(new HoldingsStatementViewModel()
-									{
-										Date = holdingStatement.HoldingsStatementDate,
-										Holdings = holdingStatement.Holdings.Select(h => new HoldingDataViewModel() { CompanyId = h.CompanyId, Recommendation = h.Recommendation })
-									});
-								}
-							});
-						}
+							Date = holdingStatement.HoldingsStatementDate,
+							Holdings = holdingStatement.Holdings.Select(h => new HoldingDataViewModel() { CompanyId = h.CompanyId, Recommendation = h.Recommendation })
+						});
 					}
-					catch (Exception ex)
-					{
-						HandleException(ex, ex.Message);
-					}
-				});
+				}
+			}
+			catch (Exception ex)
+			{
+				HandleException(ex, ex.Message);
 			}
 			finally
 			{
@@ -249,20 +223,11 @@ namespace PwhPropData.UI
 			try
 			{
 				Guid guid = Guid.NewGuid();
-				int portfolioId = 0;
-				await _pwhManager.AddApmPortfolioAsync(new FundedPortfolio() { Name = $"VP{guid}", Code = $"{guid}CODE" }).ContinueWith(task =>
-				{
-					try
-					{
-						portfolioId = task.Result;
-						AddMessage($"APM portfolio with Id = {portfolioId} was added.");
-					}
-					catch (Exception ex)
-					{
-						HandleException(ex, ex.Message);
-					}
-				});
-
+				//Create portfolio
+				int portfolioId = await _pwhManager.AddApmPortfolioAsync(new FundedPortfolio() { Name = $"VP{guid}", Code = $"{guid}CODE" });
+				AddMessage($"APM portfolio with Id = {portfolioId} was added.");
+				
+				//Add first holdings statement
 				IList<HoldingsStatement> holdingsStatements = new List<HoldingsStatement>();
 				holdingsStatements.Add(new HoldingsStatement()
 				{
@@ -276,28 +241,20 @@ namespace PwhPropData.UI
 								new HoldingData() { CompanyId = "CL.N", Recommendation = 5 }
 							}
 				});
-
 				await _pwhManager.AddHoldingsStatementsAsync(portfolioId, holdingsStatements);
 
-				await _pwhManager.GetHeadersByPartfolioIdAsync(portfolioId).ContinueWith(task =>
+				//Make sure portfolio was added.
+				PortfolioHeader portfolio = await _pwhManager.GetHeaderByPartfolioIdAsync(portfolioId);
+				if (portfolio != null)
 				{
-					try
-					{
-						IEnumerable<PortfolioHeader> portfolios = task.Result;
-						if ((portfolios != null) && (portfolios.Count() > 0))
-						{
-							App.Current.Dispatcher.Invoke((Action)delegate
-							{
-								AddMessage($"APM portfolio with Id = {portfolios.First().Id} was received from PWH.");
-								AddFundedPortfolio(portfolios.First());
-							});
-						}
-					}
-					catch (Exception ex)
-					{
-						HandleException(ex, ex.Message);
-					}
-				});
+					AddMessage($"APM portfolio with Id = {portfolio.Id} was received from PWH.");
+					//Add to ui list
+					AddFundedPortfolio(portfolio);
+				}
+				else
+				{
+					AddMessage($"There is no portfolio with Id = {portfolio.Id} in PWH.");
+				}
 			}
 			catch (Exception ex)
 			{
@@ -317,22 +274,25 @@ namespace PwhPropData.UI
 					Id = portfolio.Id,
 					Name = portfolio.Name,
 					Code = portfolio.Code,
-					HoldingsStatementsCount = portfolio.NumberOfConstituents
+					NumberOfConstituents = portfolio.NumberOfConstituents
 				});
 		}
 
 		private async void UpdateRecommendations()
 		{
 			StartLoading($"Update recommendations");
-			foreach (PortfolioViewModel portfolio in _fundedPortfolios)
+			try
 			{
-				try
+				foreach (PortfolioViewModel portfolio in _fundedPortfolios)
 				{
+
 					//Get recommendations for portfolio
-					IEnumerable<KeyValuePair<string, double>> recommenadations = _adcManager.GetRecommendations(portfolio.Id);
+					IEnumerable<KeyValuePair<string, double>> recommenadations = await _adcManager.GetRecommendations(portfolio.Id);
 
 					if ((recommenadations != null) && (recommenadations.Count() > 0))
 					{
+						portfolio.HoldingsStatements.Clear();
+
 						AddMessage($"For portfolio {portfolio.Id} was(were) received {recommenadations.Count()} recommendations.");
 						foreach (var rec in recommenadations)
 						{
@@ -344,40 +304,35 @@ namespace PwhPropData.UI
 						{
 							new HoldingsStatement()
 							{
-								HoldingsStatementDate = DateTime.Now,
+								HoldingsStatementDate = DateTime.Today,
 								Holdings = recommenadations.Select(r => new HoldingData() { CompanyId = r.Key, Recommendation = r.Value })
 							}
 						};
 
 						//Get Holdings Statements for today
 						DateTime holdingsStatementDate = DateTime.Today;
-						await _pwhManager.GetHoldingsStatementsAsync(portfolio.Id, holdingsStatementDate).ContinueWith(async (task) =>
+						IEnumerable<HoldingsStatement> holdingsStatements = await _pwhManager.GetHoldingsStatementsAsync(portfolio.Id, holdingsStatementDate);
+						if ((holdingsStatements != null) && (holdingsStatements.Count() > 0))
 						{
-							IEnumerable<HoldingsStatement> holdingsStatements = task.Result;
-							if ((holdingsStatements != null) && (holdingsStatements.Count() > 0))
-							{
-								//If there is already holdings statement for today then update this one with new recommendations
-								await _pwhManager.UpdateHoldingStatementsAsync(portfolio.Id, holdingsStatementWithRecommendations);
-							}
-							else
-							{
-								//Add recommendations to pwh
-								await _pwhManager.AddHoldingsStatementsAsync(portfolio.Id, holdingsStatementWithRecommendations);
-							}
-						});
+							//If there is already holdings statement for today then update this one with new recommendations
+							await _pwhManager.UpdateHoldingStatementsAsync(portfolio.Id, holdingsStatementWithRecommendations);
+						}
+						else
+						{
+							//Add recommendations to pwh
+							await _pwhManager.AddHoldingsStatementsAsync(portfolio.Id, holdingsStatementWithRecommendations);
+						}
 					}
 				}
-				catch (Exception ex)
-				{
-					HandleException(ex, ex.Message);
-				}
 			}
-
-			foreach (PortfolioViewModel portfolio in _fundedPortfolios)
+			catch (Exception ex)
 			{
-				portfolio.HoldingsStatements.Clear();
+				HandleException(ex, ex.Message);
 			}
-			EndLoading($"Update recommendations");
+			finally
+			{
+				EndLoading($"Update recommendations");
+			}
 		}
 
 		private void AddMessage(string message)

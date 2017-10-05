@@ -24,7 +24,7 @@ namespace PwhPropData.Core
 
 				PwhPropDataManager pwhPropDataManager = new PwhPropDataManager(logger, pwhManager, new AdcManager(logger, new AdcStorage(logger)));
 
-				IEnumerable<PortfolioHeader> headers = pwhManager.GetHeadersByQuery().Result;
+				IEnumerable<PortfolioHeader> headers = pwhManager.GetApmPortfolioHeadersAsync().Result;
 
 				if (headers != null)
 				{

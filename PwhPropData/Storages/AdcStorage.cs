@@ -10,7 +10,7 @@ namespace PwhPropData.Core.Storages
 {
 	public interface IAdcStorage
 	{ 
-		string GetData(int portfolioId);
+		Task<string> GetData(int portfolioId);
 	}
 	public class AdcStorage : IAdcStorage
 	{
@@ -22,16 +22,16 @@ namespace PwhPropData.Core.Storages
 			_logger = logger;
 		}
 
-		public string GetData(int portfolioId)
+		public async Task<string> GetData(int portfolioId)
 		{
 			string requestBody = Settings.AdcRequestBody.Replace(Settings.AdcRequestBodyPortfolioIdStr, portfolioId.ToString());
 			IList<KeyValuePair<string, string>> headers = new List<KeyValuePair<string, string>>() { new KeyValuePair<string, string>("reutersuuid", Settings.UUID) };
 			string contentType = "application/x-www-form-urlencoded; charset=UTF-8";
 			string method = "POST";
-			return GetData(Settings.AdcUrl, contentType, method, headers, requestBody);
+			return await GetData(Settings.AdcUrl, contentType, method, headers, requestBody);
 		}
 
-		private string GetData(string requestUri, string contentType, string method, IEnumerable<KeyValuePair<string, string>> headers, string requestBody)
+		private async Task<string> GetData(string requestUri, string contentType, string method, IEnumerable<KeyValuePair<string, string>> headers, string requestBody)
 		{
 			string responseText = null;
 
@@ -56,7 +56,7 @@ namespace PwhPropData.Core.Storages
 			// ... sending it and receiving the response
 			try
 			{
-				HttpWebResponse resp = (HttpWebResponse)req.GetResponse();
+				var resp = await req.GetResponseAsync();
 				using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
 				{
 					responseText = sr.ReadToEnd();

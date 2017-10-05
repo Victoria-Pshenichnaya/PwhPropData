@@ -15,6 +15,6 @@ namespace PwhPropData.UI
 		public string Code { get; set; }
 		public ObservableCollection<HoldingsStatementViewModel> HoldingsStatements { get { return _holdingsStatements; } }
 
-		public int? HoldingsStatementsCount { get; set; }
+		public int? NumberOfConstituents { get; set; }
 	}
 }

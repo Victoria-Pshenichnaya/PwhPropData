@@ -1,4 +1,5 @@
-﻿using PwhPropData.Core.Entities;
+﻿using PwhPropData.Core.Common;
+using PwhPropData.Core.Entities;
 using PwhPropData.Core.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -25,50 +26,49 @@ namespace PwhPropData.Core.Managers
 			
 		public async Task<int> AddApmPortfolioAsync(FundedPortfolio portfolio)
 		{
-			portfolio.Attributes = new List<PortfolioAttribute>()
-			{
-				new PortfolioAttribute() { ApplicationCode = Settings.PwhApplicationCode, Name = Settings.PwhApmAttribute, Value = Settings.PwhApmAttribute }
-			};
+			Guard.NotNull(portfolio, nameof(portfolio));
+
+			portfolio.Attribute = new PortfolioAttribute() { ApplicationCode = Settings.PwhApplicationCode, Name = Settings.PwhApmAttribute };
 			return await AddPortfolioAsync(portfolio);
 		}
 
 		public async Task DeletePortfolios(IEnumerable<int> portfolioIds)
 		{
+			Guard.NotNull(portfolioIds, nameof(portfolioIds));
+
 			await _pwhStorage.DeletePortfoliosAsync(portfolioIds);
 		}
 
 		public async Task AddHoldingsStatementsAsync(int portfolioId, IEnumerable<HoldingsStatement> holdingsStatements)
 		{
+			Guard.NotNull(holdingsStatements, nameof(holdingsStatements));
+
 			if (holdingsStatements != null)
 			{
 				await _pwhStorage.AddHoldingsStatementsAsync(portfolioId, holdingsStatements);
 			}
 		}
 
-		public async Task<IEnumerable<PortfolioHeader>> GetHeadersByPartfolioIdAsync(int portfolioId)
+		public async Task<PortfolioHeader> GetHeaderByPartfolioIdAsync(int portfolioId)
 		{
-			return await _pwhStorage.GetPortfolioHeadersAsync(new int[] { portfolioId });
+			IEnumerable<PortfolioHeader> portfolios = await _pwhStorage.GetPortfolioHeadersAsync(new int[] { portfolioId });
+
+			if ((portfolios != null) && (portfolios.Count() > 0))
+			{
+				return portfolios.First();
+			}
+			return null;
 		}
 
-		public Task<IEnumerable<PortfolioHeader>> GetHeadersByAttributeAsync(PortfolioAttribute att)
+		public async Task<IEnumerable<PortfolioHeader>> GetApmPortfolioHeadersAsync()
 		{
-			return _pwhStorage.GetPortfolioHeadersByAttributeAsync(att);
+			PortfolioAttribute att = new PortfolioAttribute() { ApplicationCode = Settings.PwhApplicationCode, Name = Settings.PwhApmAttribute };
+			return await _pwhStorage.GetPortfolioHeadersByAttributeAsync(att);
 		}
 
-		public Task<IEnumerable<PortfolioHeader>> GetHeadersByAttributeNameAsync(string attributeName)
+		public async Task<IEnumerable<HoldingsStatement>> GetHoldingsStatementsAsync(int portfolioId, DateTime startDate)
 		{
-			PortfolioAttribute att = new PortfolioAttribute() { ApplicationCode = Settings.PwhApplicationCode, Name = attributeName };
-			return _pwhStorage.GetPortfolioHeadersByAttributeAsync(att);
-		}
-
-		public Task<IEnumerable<Entities.PortfolioHeader>> GetHeadersByQuery()
-		{
-			return _pwhStorage.GetPortfolioHeadersByQueryAsync();
-		}
-
-		public async Task<IEnumerable<HoldingsStatement>> GetHoldingsStatementsAsync(int portfolioId, DateTime date)
-		{
-			return await _pwhStorage.GetHoldingsStatementsAsync(portfolioId, date);
+			return await _pwhStorage.GetHoldingsStatementsAsync(portfolioId, startDate, DateTime.Today);
 		}
 
 		public async Task UpdateHoldingStatementsAsync(int portfolioId, IEnumerable<HoldingsStatement> holdingStatements)

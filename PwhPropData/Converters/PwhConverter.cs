@@ -95,10 +95,12 @@ namespace PwhPropData.Core.Converters
 			pwhPortfolio.PortfolioHeader.Type = null; // PWH doesn't allow to specify portfolio type in this request
 			pwhPortfolio.PortfolioHeader.PortfolioId = 0; // PWH doesn't allow to specify portfolio id in this request
 
-			Pwh.PortfolioAttributes attributes = new Pwh.PortfolioAttributes();
-			attributes.AddRange(fundedPortfolio.Attributes.Select(att => new Pwh.PortfolioAttribute() { ApplicationCode = att.ApplicationCode, AttributeName = att.Name, AttributeValue = att.Value }));
-
-			pwhPortfolio.PortfolioAttributes = attributes;
+			if (fundedPortfolio.Attribute != null)
+			{
+				Pwh.PortfolioAttributes attributes = new Pwh.PortfolioAttributes();
+				attributes.Add(new Pwh.PortfolioAttribute() { ApplicationCode = fundedPortfolio.Attribute.ApplicationCode, AttributeName = fundedPortfolio.Attribute.Name, AttributeValue = fundedPortfolio.Attribute.Value });
+				pwhPortfolio.PortfolioAttributes = attributes;
+			}
 			pwhPortfolio.HoldingsStatementHeaders = null;
 			return pwhPortfolio;
 		}
