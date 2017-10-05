@@ -1,0 +1,7 @@
+c:\users\victoria_pshenichnay\documents\visual studio 2017\Projects\PropDataPWH\PropDataPWH\bin\Debug\PropDataPWH.exe.config
+c:\users\victoria_pshenichnay\documents\visual studio 2017\Projects\PropDataPWH\PropDataPWH\bin\Debug\PropDataPWH.exe
+c:\users\victoria_pshenichnay\documents\visual studio 2017\Projects\PropDataPWH\PropDataPWH\bin\Debug\PropDataPWH.pdb
+c:\users\victoria_pshenichnay\documents\visual studio 2017\Projects\PropDataPWH\PropDataPWH\obj\Debug\PropDataPWH.exe
+c:\users\victoria_pshenichnay\documents\visual studio 2017\Projects\PropDataPWH\PropDataPWH\obj\Debug\PropDataPWH.pdb
+C:\Users\Victoria_Pshenichnay\documents\visual studio 2017\Projects\PropDataPWH\PropDataPWH\obj\Debug\PropDataPWH.csprojResolveAssemblyReference.cache
+C:\Users\Victoria_Pshenichnay\documents\visual studio 2017\Projects\PropDataPWH\PropDataPWH\bin\Debug\Newtonsoft.Json.dll

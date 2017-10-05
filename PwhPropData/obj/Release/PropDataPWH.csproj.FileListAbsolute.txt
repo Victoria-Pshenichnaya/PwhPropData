@@ -1,0 +1,5 @@
+C:\Users\Victoria_Pshenichnay\documents\visual studio 2017\Projects\PropDataPWH\PropDataPWH\bin\Release\PropDataPWH.exe.config
+C:\Users\Victoria_Pshenichnay\documents\visual studio 2017\Projects\PropDataPWH\PropDataPWH\bin\Release\PropDataPWH.exe
+C:\Users\Victoria_Pshenichnay\documents\visual studio 2017\Projects\PropDataPWH\PropDataPWH\bin\Release\PropDataPWH.pdb
+C:\Users\Victoria_Pshenichnay\documents\visual studio 2017\Projects\PropDataPWH\PropDataPWH\obj\Release\PropDataPWH.exe
+C:\Users\Victoria_Pshenichnay\documents\visual studio 2017\Projects\PropDataPWH\PropDataPWH\obj\Release\PropDataPWH.pdb
