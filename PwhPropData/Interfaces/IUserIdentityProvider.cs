@@ -2,7 +2,7 @@
 {
 	public interface IUserIdentityProvider
 	{
-		string Uuid { get; }
+		string Uuid { get; set; }
 		UserIdentityType UserType { get; }
 	}
 

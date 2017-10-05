@@ -8,26 +8,27 @@ using System.Threading.Tasks;
 
 namespace PwhPropData.Core.Storages
 {
-	public interface IAdcStorage
-	{ 
-		Task<string> GetData(int portfolioId);
-	}
 	public class AdcStorage : IAdcStorage
 	{
 		private readonly ILogger _logger = null;
+		private IUserIdentityProvider _userIdentityProvider = null;
 
-		public AdcStorage(ILogger logger)
+		public AdcStorage(ILogger logger, IUserIdentityProvider userIdentityProvider)
 		{
 			Guard.NotNull(logger, nameof(logger));
+			Guard.NotNull(userIdentityProvider, nameof(userIdentityProvider));
+
 			_logger = logger;
+			_userIdentityProvider = userIdentityProvider;
 		}
 
 		public async Task<string> GetData(int portfolioId)
 		{
 			string requestBody = Settings.AdcRequestBody.Replace(Settings.AdcRequestBodyPortfolioIdStr, portfolioId.ToString());
-			IList<KeyValuePair<string, string>> headers = new List<KeyValuePair<string, string>>() { new KeyValuePair<string, string>("reutersuuid", Settings.UUID) };
+			IEnumerable<KeyValuePair<string, string>> headers = new List<KeyValuePair<string, string>>() { new KeyValuePair<string, string>("reutersuuid", _userIdentityProvider.Uuid) };
 			string contentType = "application/x-www-form-urlencoded; charset=UTF-8";
 			string method = "POST";
+
 			return await GetData(Settings.AdcUrl, contentType, method, headers, requestBody);
 		}
 

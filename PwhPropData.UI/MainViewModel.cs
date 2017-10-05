@@ -17,11 +17,13 @@ namespace PwhPropData.UI
 	{
 		private readonly IPwhManager _pwhManager = null;
 		private readonly IAdcManager _adcManager = null;
+		private IUserIdentityProvider _userIdentityProvider = null;
 
 		private DelegateCommand _selectedPortfolioChangedCommand = null;
 		private DelegateCommand _updateRecommendationsCommand = null;
 		private DelegateCommand _deleteApmPortfoliosCommand = null;
 		private DelegateCommand _addApmPortfolioCommand = null;
+		private DelegateCommand _getApmPortfoliasCommand = null;
 
 		private PortfolioViewModel _selectedPortfolio = null;
 		private HoldingsStatementViewModel _selectedHoldingsStatement = null;
@@ -30,14 +32,25 @@ namespace PwhPropData.UI
 
 		private bool _isLoading = false;
 		private string _messages = string.Empty;
+		private string _uuId = null;
 
 		public MainViewModel()
 		{
 			ILogger logger = new Logger();
-			_pwhManager = new PwhManager(logger, new PwhStorage(logger, new PwhConverter(new UserIdentityProvider())));
-			_adcManager = new AdcManager(logger, new AdcStorage(logger));
+			_userIdentityProvider = new UserIdentityProvider();
+			_pwhManager = new PwhManager(logger, new PwhStorage(logger, _userIdentityProvider, new PwhConverter(_userIdentityProvider)));
+			_adcManager = new AdcManager(logger, new AdcStorage(logger, _userIdentityProvider));
+			UuId = Settings.UUID;
+		}
 
-			FillApmPortfolios();
+		public string UuId
+		{
+			get { return _uuId; }
+			set
+			{
+				SetProperty<string>(ref _uuId, value);
+				_userIdentityProvider.Uuid = value;
+			}
 		}
 
 		public string Messages
@@ -58,7 +71,17 @@ namespace PwhPropData.UI
 				RaiseCommands();
 			}
 		}
-
+		public DelegateCommand GetApmPortfoliasCommand
+		{
+			get
+			{
+				if (_getApmPortfoliasCommand == null)
+				{
+					_getApmPortfoliasCommand = new DelegateCommand(FillApmPortfolios, () =>  !string.IsNullOrEmpty(UuId));
+				}
+				return _getApmPortfoliasCommand;
+			}
+		}
 		public DelegateCommand SelectedPortfolioChangedCommand
 		{
 			get
@@ -141,7 +164,7 @@ namespace PwhPropData.UI
 		{
 			try
 			{
-				StartLoading("Portfolios");
+				StartLoading($"Portfolios for UuId {UuId}");
 				_fundedPortfolios.Clear();
 				IEnumerable<PortfolioHeader> portfolios = await _pwhManager.GetApmPortfolioHeadersAsync();
 				if (portfolios != null)

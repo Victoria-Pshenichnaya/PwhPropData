@@ -19,10 +19,11 @@ namespace PwhPropData.Core
 			try
 			{
 				Logger logger = new Logger();
+				UserIdentityProvider userIdentityProvider = new UserIdentityProvider() { Uuid = Settings.UUID };
 
-				PwhManager pwhManager = new PwhManager(logger, new PwhStorage(logger, new PwhConverter(new UserIdentityProvider() { Uuid = Settings.UUID })));
+				PwhManager pwhManager = new PwhManager(logger, new PwhStorage(logger, userIdentityProvider, new PwhConverter(userIdentityProvider)));
 
-				PwhPropDataManager pwhPropDataManager = new PwhPropDataManager(logger, pwhManager, new AdcManager(logger, new AdcStorage(logger)));
+				PwhPropDataManager pwhPropDataManager = new PwhPropDataManager(logger, pwhManager, new AdcManager(logger, new AdcStorage(logger, userIdentityProvider)));
 
 				IEnumerable<PortfolioHeader> headers = pwhManager.GetApmPortfolioHeadersAsync().Result;
 

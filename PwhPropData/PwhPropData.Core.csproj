@@ -49,6 +49,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Interfaces\IAdcStorage.cs" />
     <Compile Include="Interfaces\IPwhConverter.cs" />
     <Compile Include="Interfaces\IPwhPropDataManager.cs" />
     <Compile Include="Managers\AdcManager.cs" />

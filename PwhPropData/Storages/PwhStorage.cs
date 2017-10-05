@@ -21,18 +21,24 @@ namespace PwhPropData.Core.Storages
 	{
 		private Pwh.PortfolioWarehouseClient _client = null;
 		private Pwh.ClientDetails _clientDitails = null;
+		private IUserIdentityProvider _userIdentityProvider = null;
 
 		private const string FundedPortfolioType = "FundedPortfolio";
 
 		private IPwhConverter _pwhConverter = null;
 		private ILogger _logger = null;
 
-		public PwhStorage(ILogger logger, IPwhConverter pwhConverter)
+		public PwhStorage(ILogger logger, IUserIdentityProvider userIdentityProvider, IPwhConverter pwhConverter)
 		{
+			Guard.NotNull(logger, nameof(logger));
+			Guard.NotNull(userIdentityProvider, nameof(userIdentityProvider));
+			Guard.NotNull(pwhConverter, nameof(pwhConverter));
+
 			_client = new Pwh.PortfolioWarehouseClient("PortfolioWarehouseUUID");
 
 			_pwhConverter = pwhConverter;
 			_logger = logger;
+			_userIdentityProvider = userIdentityProvider;
 		}
 
 		private Guid RequestId
@@ -70,7 +76,7 @@ namespace PwhPropData.Core.Storages
 			{
 				return new Pwh.UserIdentity()
 				{
-					UUID = Settings.UUID
+					UUID = _userIdentityProvider.Uuid
 				};
 			}
 		}
